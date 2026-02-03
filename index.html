@@ -62,6 +62,21 @@
       display:flex; flex-direction:column; gap:10px;
     }
     .mrow.overdue{border-color:#542626}
+    /* ===== Milestone Status Colors ===== */
+.mrow.pending {
+  border-color: #6b2b2b;
+  background: #1f1010;
+}
+
+.mrow.overdue {
+  border-color: #b23b3b;
+  background: #2a1212;
+}
+
+.mrow.complete {
+  border-color: #2e7d4f;
+  background: #0f2217;
+}
     .mhead{display:flex; gap:10px; align-items:flex-start}
     .chk{width:20px; height:20px; border-radius:6px; border:1px solid var(--line); display:grid; place-items:center; cursor:pointer; flex:0 0 auto; margin-top:2px}
     .chk.on{background:#112015; border-color:#275a3a}
@@ -668,7 +683,15 @@
       const isOverdue = !m.completed && m.dueDate && m.dueDate < today;
 
       const div = document.createElement("div");
-      div.className = "mrow" + (isOverdue ? " overdue" : "");
+      let statusClass = "pending";
+
+if (m.completed) {
+  statusClass = "complete";
+} else if (isOverdue) {
+  statusClass = "overdue";
+}
+
+div.className = "mrow " + statusClass;
 
       const due = m.dueDate || "—";
       const doneAt = m.completedAt ? ` • Done: ${new Date(m.completedAt).toLocaleString()}` : "";
