@@ -152,6 +152,7 @@
           <div class="row wrap" id="custActions" style="display:none">
             <button class="btn secondary" id="recomputeBtn" title="Recalculate due dates based on template days-before-start">Recompute due dates</button>
             <button class="btn danger" id="deleteCustomerBtn">Delete</button>
+            <button class="btn secondary" id="redReportBtn">Red tasks</button>
           </div>
         </div>
 
@@ -272,6 +273,32 @@
     <button class="btn secondary" id="iCancel">Cancel</button>
     <button class="btn" id="iDo">Import</button>
   </div>
+</dialog>
+<!-- RED TASKS REPORT DIALOG -->
+<dialog id="dlgRedReport">
+  <div class="dlg-hd">
+    <div style="font-weight:900">Red Tasks Report</div>
+    <div class="hint">Incomplete milestones that need attention.</div>
+  </div>
+
+  <div class="dlg-bd">
+    <div class="row wrap" style="justify-content:space-between; gap:10px">
+      <label class="pill" style="cursor:pointer">
+        <input type="checkbox" id="overdueOnly" style="width:auto; margin:0 8px 0 0" />
+        Overdue only
+      </label>
+
+      <button class="btn secondary" id="copyRedReportBtn">Copy report</button>
+    </div>
+
+    <div class="hr"></div>
+
+    <div id="redReportBody" style="display:flex; flex-direction:column; gap:10px"></div>
+  </div>
+<div class="dlg-ft">
+  <button class="btn secondary" id="closeRedReportBtn">Close</button>
+</div>
+
 </dialog>
 
 <script>
@@ -513,6 +540,33 @@
   };
 
   // ----------------- Logic -----------------
+  // -------- Red Tasks Report --------
+function buildRedReport(){
+  const c = getActiveCustomer();
+  if (!c) return;
+
+  const today = isoToday();
+  const overdueOnly = $("overdueOnly").checked;
+
+  let items = c.milestones.filter(m => !m.completed);
+
+  if (overdueOnly) {
+    items = items.filter(m => m.dueDate && m.dueDate < today);
+  }
+
+  items.sort((a, b) => {
+    if (a.dueDate && b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+    if (a.dueDate) return -1;
+    if (b.dueDate) return 1;
+    return 0;
+  });
+
+  const host = $("redReportBody");
+  host.innerHTML = "";
+
+  if (items.length === 0){
+    host.innerHTML = `<div class="m
+
   function getActiveCustomer(){
     return state.customers.find(c => c.id === activeCustomerId) || null;
   }
