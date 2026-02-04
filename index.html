@@ -541,6 +541,7 @@
 
   // ----------------- Logic -----------------
   // -------- Red Tasks Report --------
+<script>
 function buildRedReport(){
   const c = getActiveCustomer();
   if (!c) return;
@@ -564,8 +565,29 @@ function buildRedReport(){
   const host = $("redReportBody");
   host.innerHTML = "";
 
-  if (items.length === 0){
-    host.innerHTML = `<div class="m
+  if (items.length === 0) {
+    host.innerHTML = `<div class="muted">No red tasks 🎉</div>`;
+    return;
+  }
+
+  items.forEach(m => {
+    const row = document.createElement("div");
+    row.className = "mrow overdue";
+    row.innerHTML = `
+      <div class="title">${escapeHtml(m.title)}</div>
+      <div class="small">Due: ${m.dueDate || "—"}</div>
+    `;
+    host.appendChild(row);
+  });
+}
+
+// wire red report buttons
+$("redReportBtn").onclick = () => {
+  buildRedReport();
+  $("dlgRedReport").showModal();
+};
+
+$("closeRedReportBtn").onclick = () => $("dlgRedReport").clos
 
   function getActiveCustomer(){
     return state.customers.find(c => c.id === activeCustomerId) || null;
