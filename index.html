@@ -14,7 +14,6 @@
       --good:#2bd576;
       --warn:#ffcc66;
       --bad:#ff6b6b;
-      --btn:#1e2a46;
     }
     *{box-sizing:border-box}
     body{
@@ -31,7 +30,7 @@
       backdrop-filter: blur(10px);
       z-index: 5;
     }
-    header .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    header .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; max-width:1200px; margin:0 auto;}
     h1{font-size:18px; margin:0}
     .pill{font-size:12px; color:var(--muted); border:1px solid var(--line); padding:6px 10px; border-radius:999px}
     .wrap{max-width:1200px; margin:0 auto; padding:16px}
@@ -77,7 +76,6 @@
       border-radius:14px;
       padding:10px;
     }
-    .item .top{display:flex; gap:10px; align-items:flex-start}
     .tag{
       font-size:11px;
       border:1px solid var(--line);
@@ -91,18 +89,36 @@
     .tag.bad{border-color: rgba(255,107,107,.35); color: #ffb5b5}
     .small{font-size:12px}
     .hr{height:1px; background: var(--line); margin:10px 0}
-    .checkrow{display:flex; gap:10px; align-items:center; justify-content:space-between}
-    .checkrow label{display:flex; gap:10px; align-items:center; width:100%}
-    .checkrow input[type="checkbox"]{width:18px; height:18px}
     .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
     @media (max-width: 540px){ .two{grid-template-columns:1fr} }
 
+    .checkline{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .checkline input[type="checkbox"]{
+      width:20px; height:20px; margin-top:2px;
+      accent-color: #2bd576;
+    }
+    .checktext{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .checkmeta{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
     .kbd{font-size:11px; color:var(--muted); border:1px solid var(--line); padding:3px 7px; border-radius:8px}
   </style>
 </head>
 <body>
 <header>
-  <div class="row" style="max-width:1200px;margin:0 auto;">
+  <div class="row">
     <h1>Pool Tracker</h1>
     <span class="pill">Weekly maintenance logs + task list</span>
     <div class="spacer"></div>
@@ -115,7 +131,7 @@
 
 <div class="wrap">
   <div class="grid">
-    <!-- LEFT: Pools + Checklist manager -->
+    <!-- LEFT -->
     <div class="col">
       <div class="card">
         <h2>Properties (Pools)</h2>
@@ -132,7 +148,6 @@
           <div class="spacer"></div>
           <span class="muted small">Tip: click a property to work it</span>
         </div>
-
         <div class="hr"></div>
         <div class="list" id="poolList"></div>
       </div>
@@ -149,9 +164,9 @@
       </div>
     </div>
 
-    <!-- RIGHT: Weekly log + Tasks + History -->
+    <!-- RIGHT -->
     <div class="col">
-      <div class="card" id="activeCard">
+      <div class="card">
         <h2>Weekly Maintenance Visit</h2>
         <div class="muted small" id="activePoolHint">Select a property on the left.</div>
 
@@ -168,12 +183,10 @@
           <textarea id="visitNotes" placeholder="Notes (chem readings, what you adjusted, customer notes, etc.)"></textarea>
 
           <div class="hr"></div>
-          <div class="row" style="align-items:flex-end">
-            <div class="col" style="flex:1">
-              <div class="muted small">Checklist — mark item “Needs attention” to auto-create a task.</div>
-              <div class="list" id="visitChecklist"></div>
-            </div>
+          <div class="muted small">
+            Checklist — tech must check <b>Done</b>. Use “Needs attention” to auto-create a task.
           </div>
+          <div class="list" id="visitChecklist" style="margin-top:10px"></div>
 
           <div class="row" style="margin-top:10px">
             <button class="primary" id="btnSaveVisit">Save Visit</button>
@@ -188,9 +201,7 @@
         <h2>Task List</h2>
 
         <div class="two">
-          <select id="taskPool">
-            <option value="">(Link to a property)</option>
-          </select>
+          <select id="taskPool"><option value="">(Link to a property)</option></select>
           <input id="taskDue" type="date" />
         </div>
         <div class="row">
@@ -217,7 +228,7 @@
         <h2>Visit History</h2>
         <div class="row">
           <select id="historyPool" style="flex:1"></select>
-          <button class="ghost" id="btnDeleteAllVisits">Delete all visits (selected)</button>
+          <button class="ghost danger" id="btnDeleteAllVisits">Delete all visits (selected)</button>
         </div>
         <div class="hr"></div>
         <div class="list" id="historyList"></div>
@@ -227,11 +238,7 @@
 </div>
 
 <script>
-/* =========================
-   Data model + persistence
-========================= */
-const KEY = "POOL_TRACKER_V1";
-
+const KEY = "POOL_TRACKER_V2";
 function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
 
 const defaultData = () => ({
@@ -243,36 +250,26 @@ const defaultData = () => ({
     { id: uid(), text: "Backwash / clean filter (as needed)" },
     { id: uid(), text: "Test & adjust water chemistry" }
   ],
-  visits: [], // {id, poolId, date, status, notes, checklist: [{itemId, state: ok|needs|na}]}
-  tasks: []   // {id, poolId?, text, due?, done, createdAt, source?}
+  visits: [],
+  tasks: []
 });
 
 let db = load();
-
 function load(){
   try{
     const raw = localStorage.getItem(KEY);
     if(!raw) return defaultData();
     const parsed = JSON.parse(raw);
-    // basic hardening
     return {
       pools: Array.isArray(parsed.pools) ? parsed.pools : [],
       checklist: Array.isArray(parsed.checklist) ? parsed.checklist : defaultData().checklist,
       visits: Array.isArray(parsed.visits) ? parsed.visits : [],
       tasks: Array.isArray(parsed.tasks) ? parsed.tasks : []
     };
-  }catch(e){
-    return defaultData();
-  }
+  }catch(e){ return defaultData(); }
 }
+function save(){ localStorage.setItem(KEY, JSON.stringify(db)); }
 
-function save(){
-  localStorage.setItem(KEY, JSON.stringify(db));
-}
-
-/* =========================
-   UI refs
-========================= */
 const el = (id) => document.getElementById(id);
 
 const poolList = el("poolList");
@@ -314,44 +311,63 @@ const btnReset = el("btnReset");
 
 let activePoolId = null;
 
-/* =========================
-   Render helpers
-========================= */
-function poolLabel(p){
-  const bits = [p.name];
-  const meta = [];
-  if(p.type) meta.push(p.type);
-  if(p.gallons) meta.push(`${p.gallons} gal`);
-  if(meta.length) bits.push(`• ${meta.join(" • ")}`);
-  return bits.join(" ");
+function escapeHtml(str){
+  return (str ?? "").toString()
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
-
 function fmtDate(d){
   if(!d) return "";
-  // d is yyyy-mm-dd
   const [y,m,day] = d.split("-");
   return `${m}/${day}/${y}`;
 }
-
 function getPool(id){ return db.pools.find(p => p.id === id); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
 
-/* =========================
-   Pools (CRUD)
-========================= */
+function countOpenTasksForPool(poolId){
+  return db.tasks.filter(t => !t.done && t.poolId === poolId).length;
+}
+
+function ensureNeedsTask(poolId, itemText){
+  const normalized = itemText.trim().toLowerCase();
+  const existing = db.tasks.find(t =>
+    !t.done &&
+    t.poolId === poolId &&
+    (t.text || "").trim().toLowerCase() === normalized
+  );
+  if(existing) return existing;
+
+  const task = {
+    id: uid(),
+    poolId,
+    text: itemText,
+    due: "",
+    done: false,
+    createdAt: new Date().toISOString(),
+    source: "needs-attention"
+  };
+  db.tasks.unshift(task);
+  save();
+  renderTasks();
+  return task;
+}
+
+/* Pools */
 btnAddPool.addEventListener("click", () => {
   const name = poolName.value.trim();
   if(!name) return alert("Property name is required.");
-  const p = {
+  db.pools.unshift({
     id: uid(),
     name,
     address: poolAddress.value.trim(),
     gallons: poolVolume.value.trim(),
     type: poolType.value.trim()
-  };
-  db.pools.unshift(p);
-  save();
-  poolName.value = ""; poolAddress.value=""; poolVolume.value=""; poolType.value="";
-  renderAll();
+  });
+  poolName.value=""; poolAddress.value=""; poolVolume.value=""; poolType.value="";
+  save(); renderAll();
 });
 
 function renderPools(){
@@ -360,41 +376,42 @@ function renderPools(){
     poolList.innerHTML = `<div class="muted small">No properties yet. Add one above.</div>`;
     return;
   }
-
   db.pools.forEach(p => {
     const wrap = document.createElement("div");
     wrap.className = "item";
     wrap.style.borderColor = (p.id === activePoolId) ? "rgba(43,213,118,.35)" : "var(--line)";
-
     wrap.innerHTML = `
-      <div class="top">
+      <div class="row" style="align-items:flex-start">
         <div style="flex:1">
           <div style="font-weight:650">${escapeHtml(p.name)}</div>
           <div class="muted small">${escapeHtml(p.address || "")}</div>
           <div class="muted small">${escapeHtml((p.type||"") + (p.gallons?` • ${p.gallons} gal`:""))}</div>
         </div>
-        <button class="ghost" data-act="select">Open</button>
+        <button class="ghost" data-act="open">Open</button>
       </div>
       <div class="row" style="margin-top:8px">
-        <button class="ghost small" data-act="edit">Edit</button>
-        <button class="ghost small danger" data-act="delete">Delete</button>
+        <button class="ghost" data-act="edit">Edit</button>
+        <button class="ghost danger" data-act="del">Delete</button>
         <div class="spacer"></div>
         <span class="tag">${countOpenTasksForPool(p.id)} open tasks</span>
       </div>
     `;
-
-    wrap.querySelector('[data-act="select"]').addEventListener("click", () => setActivePool(p.id));
-    wrap.querySelector('[data-act="delete"]').addEventListener("click", () => deletePool(p.id));
+    wrap.querySelector('[data-act="open"]').addEventListener("click", () => setActivePool(p.id));
+    wrap.querySelector('[data-act="del"]').addEventListener("click", () => deletePool(p.id));
     wrap.querySelector('[data-act="edit"]').addEventListener("click", () => editPool(p.id));
-
     poolList.appendChild(wrap);
   });
 }
-
+function setActivePool(poolId){
+  activePoolId = poolId;
+  visitDate.value = todayISO();
+  visitStatus.value = "completed";
+  visitNotes.value = "";
+  renderAll();
+}
 function editPool(poolId){
   const p = getPool(poolId);
   if(!p) return;
-
   const name = prompt("Property name:", p.name);
   if(name === null) return;
   const address = prompt("Address (optional):", p.address || "") ?? (p.address || "");
@@ -406,46 +423,33 @@ function editPool(poolId){
   p.gallons = (gallons || "").trim();
   p.type = (type || "").trim();
 
-  save();
-  renderAll();
+  save(); renderAll();
 }
-
 function deletePool(poolId){
   const p = getPool(poolId);
   if(!p) return;
-  if(!confirm(`Delete "${p.name}"? This will also remove its visits and linked tasks.`)) return;
-
+  if(!confirm(`Delete "${p.name}"? This also removes its visits and linked tasks.`)) return;
   db.pools = db.pools.filter(x => x.id !== poolId);
   db.visits = db.visits.filter(v => v.poolId !== poolId);
   db.tasks = db.tasks.filter(t => t.poolId !== poolId);
   if(activePoolId === poolId) activePoolId = null;
-  save();
-  renderAll();
+  save(); renderAll();
 }
 
-function setActivePool(poolId){
-  activePoolId = poolId;
-  // default date to today
-  visitDate.value = new Date().toISOString().slice(0,10);
-  visitStatus.value = "completed";
-  visitNotes.value = "";
-  renderAll();
-}
-
-/* =========================
-   Checklist manager
-========================= */
+/* Checklist manager */
 btnAddCheck.addEventListener("click", () => {
   const text = checkItemText.value.trim();
   if(!text) return;
   db.checklist.push({ id: uid(), text });
   checkItemText.value = "";
-  save();
-  renderAll();
+  save(); renderAll();
 });
-
 function renderChecklistManager(){
   checklistManager.innerHTML = "";
+  if(db.checklist.length === 0){
+    checklistManager.innerHTML = `<div class="muted small">No checklist items. Add one above.</div>`;
+    return;
+  }
   db.checklist.forEach(item => {
     const row = document.createElement("div");
     row.className = "item";
@@ -463,79 +467,19 @@ function renderChecklistManager(){
       save(); renderAll();
     });
     row.querySelector('[data-act="remove"]').addEventListener("click", () => {
-      if(!confirm("Remove this checklist item? (It will no longer show on future visits.)")) return;
+      if(!confirm("Remove this checklist item?")) return;
       db.checklist = db.checklist.filter(x => x.id !== item.id);
-      // Note: existing visit records may still reference itemId, which is fine.
       save(); renderAll();
     });
     checklistManager.appendChild(row);
   });
-
-  if(db.checklist.length === 0){
-    checklistManager.innerHTML = `<div class="muted small">No checklist items. Add one above.</div>`;
-  }
 }
 
-/* =========================
-   Weekly visit form
-========================= */
+/* Weekly visit checklist (checkbox-driven) */
 btnClearVisit.addEventListener("click", () => {
   visitNotes.value = "";
   visitStatus.value = "completed";
-  renderVisitChecklist(); // reset states
-});
-
-btnSaveVisit.addEventListener("click", () => {
-  if(!activePoolId) return alert("Select a property first.");
-  const date = visitDate.value;
-  if(!date) return alert("Pick a date.");
-
-  const states = Array.from(visitChecklist.querySelectorAll("[data-itemid]")).map(row => {
-    const itemId = row.getAttribute("data-itemid");
-    const val = row.querySelector("select").value; // ok|needs|na
-    return { itemId, state: val };
-  });
-
-  const visit = {
-    id: uid(),
-    poolId: activePoolId,
-    date,
-    status: visitStatus.value,
-    notes: visitNotes.value.trim(),
-    checklist: states
-  };
-
-  db.visits.unshift(visit);
-
-  // Auto-create tasks for any "needs"
-  const pool = getPool(activePoolId);
-  states.filter(s => s.state === "needs").forEach(s => {
-    const itemText = (db.checklist.find(ci => ci.id === s.itemId)?.text) || "Checklist item";
-    const taskText = `${itemText}`;
-    const existsOpen = db.tasks.some(t =>
-      !t.done &&
-      t.poolId === activePoolId &&
-      t.text.trim().toLowerCase() === taskText.trim().toLowerCase()
-    );
-    if(!existsOpen){
-      db.tasks.unshift({
-        id: uid(),
-        poolId: activePoolId,
-        text: taskText,
-        due: "",
-        done: false,
-        createdAt: new Date().toISOString(),
-        source: `visit:${visit.id}`
-      });
-    }
-  });
-
-  save();
-  // Reset form for convenience
-  visitNotes.value = "";
-  visitStatus.value = "completed";
-  renderAll();
-  alert(`Saved visit for ${pool ? pool.name : "property"} (${fmtDate(date)}).`);
+  renderVisitChecklist();
 });
 
 function renderVisitCard(){
@@ -552,36 +496,93 @@ function renderVisitCard(){
 
 function renderVisitChecklist(){
   visitChecklist.innerHTML = "";
+
+  if(db.checklist.length === 0){
+    visitChecklist.innerHTML = `<div class="muted small">No checklist items. Add some on the left.</div>`;
+    return;
+  }
+
   db.checklist.forEach(ci => {
     const row = document.createElement("div");
     row.className = "item";
     row.setAttribute("data-itemid", ci.id);
+
     row.innerHTML = `
-      <div class="checkrow">
-        <label>
-          <div style="flex:1">
-            <div style="font-weight:600">${escapeHtml(ci.text)}</div>
-            <div class="muted small">OK = done • Needs attention = creates task • N/A = not applicable</div>
+      <div class="checkline">
+        <input type="checkbox" data-done />
+        <div class="checktext">
+          <div style="font-weight:650">${escapeHtml(ci.text)}</div>
+          <div class="checkmeta">
+            <span class="muted small">Done checkbox required</span>
+            <select data-state>
+              <option value="ok">OK</option>
+              <option value="needs">Needs attention</option>
+              <option value="na">N/A</option>
+            </select>
           </div>
-          <select>
-            <option value="ok">OK</option>
-            <option value="needs">Needs attention</option>
-            <option value="na">N/A</option>
-          </select>
-        </label>
+          <div class="muted small" data-hint>Tip: set “Needs attention” to create a task.</div>
+        </div>
       </div>
     `;
+
+    const stateSel = row.querySelector("[data-state]");
+    stateSel.addEventListener("change", () => {
+      if(stateSel.value === "needs" && activePoolId){
+        ensureNeedsTask(activePoolId, ci.text);
+        row.querySelector("[data-hint]").innerHTML = `<span class="tag warn">Task created (or already existed)</span>`;
+      } else if(stateSel.value === "na"){
+        row.querySelector("[data-hint]").innerHTML = `<span class="tag">Marked N/A</span>`;
+      } else {
+        row.querySelector("[data-hint]").textContent = "Tip: set “Needs attention” to create a task.";
+      }
+    });
+
     visitChecklist.appendChild(row);
   });
-
-  if(db.checklist.length === 0){
-    visitChecklist.innerHTML = `<div class="muted small">No checklist items. Add some on the left.</div>`;
-  }
 }
 
-/* =========================
-   Tasks
-========================= */
+btnSaveVisit.addEventListener("click", () => {
+  if(!activePoolId) return alert("Select a property first.");
+  const date = visitDate.value;
+  if(!date) return alert("Pick a date.");
+
+  const rows = Array.from(visitChecklist.querySelectorAll(".item[data-itemid]"));
+  const entries = rows.map(r => {
+    const itemId = r.getAttribute("data-itemid");
+    const done = r.querySelector("[data-done]").checked;
+    const state = r.querySelector("[data-state]").value; // ok|needs|na
+    return { itemId, done, state };
+  });
+
+  // enforce “physically mark” concept: if OK or Needs, require Done checked
+  const missing = entries.filter(e => (e.state === "ok" || e.state === "needs") && !e.done);
+  if(missing.length){
+    return alert("Some checklist items are marked OK/Needs but not checked Done. Either check Done or set to N/A.");
+  }
+
+  // ensure tasks exist for needs (also on save, in case dropdown wasn’t changed live)
+  entries.filter(e => e.state === "needs").forEach(e => {
+    const itemText = (db.checklist.find(ci => ci.id === e.itemId)?.text) || "Checklist item";
+    ensureNeedsTask(activePoolId, itemText);
+  });
+
+  db.visits.unshift({
+    id: uid(),
+    poolId: activePoolId,
+    date,
+    status: visitStatus.value,
+    notes: visitNotes.value.trim(),
+    checklist: entries
+  });
+
+  save();
+  visitNotes.value = "";
+  visitStatus.value = "completed";
+  renderAll();
+  alert(`Saved visit (${fmtDate(date)}).`);
+});
+
+/* Tasks */
 btnAddTask.addEventListener("click", () => {
   const text = taskText.value.trim();
   if(!text) return;
@@ -605,19 +606,17 @@ btnAddTask.addEventListener("click", () => {
 btnClearDone.addEventListener("click", () => {
   if(!confirm("Clear ALL completed tasks?")) return;
   db.tasks = db.tasks.filter(t => !t.done);
-  save();
-  renderAll();
+  save(); renderAll();
 });
-
 taskFilter.addEventListener("change", renderTasks);
 
-function countOpenTasksForPool(poolId){
-  return db.tasks.filter(t => !t.done && t.poolId === poolId).length;
+function isOverdue(t){
+  if(!t.due || t.done) return false;
+  return t.due < todayISO();
 }
 
 function renderTasks(){
   taskList.innerHTML = "";
-
   const mode = taskFilter.value;
   let tasks = [...db.tasks];
   if(mode === "open") tasks = tasks.filter(t => !t.done);
@@ -636,7 +635,7 @@ function renderTasks(){
     const row = document.createElement("div");
     row.className = "item";
     row.innerHTML = `
-      <div class="top">
+      <div class="row" style="align-items:flex-start">
         <input type="checkbox" ${t.done ? "checked":""} />
         <div style="flex:1">
           <div style="font-weight:650; text-decoration:${t.done?"line-through":"none"}">${escapeHtml(t.text)}</div>
@@ -653,8 +652,7 @@ function renderTasks(){
 
     row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
       t.done = e.target.checked;
-      save();
-      renderAll();
+      save(); renderAll();
     });
 
     row.querySelector('[data-act="del"]').addEventListener("click", () => {
@@ -684,15 +682,7 @@ function renderTasks(){
   });
 }
 
-function isOverdue(t){
-  if(!t.due || t.done) return false;
-  const today = new Date().toISOString().slice(0,10);
-  return t.due < today;
-}
-
-/* =========================
-   Visit history
-========================= */
+/* Visit history */
 btnDeleteAllVisits.addEventListener("click", () => {
   const pid = historyPool.value;
   if(!pid) return;
@@ -702,7 +692,6 @@ btnDeleteAllVisits.addEventListener("click", () => {
   db.visits = db.visits.filter(v => v.poolId !== pid);
   save(); renderAll();
 });
-
 historyPool.addEventListener("change", renderHistory);
 
 function renderHistory(){
@@ -712,7 +701,10 @@ function renderHistory(){
     historyList.innerHTML = `<div class="muted small">Choose a property to view history.</div>`;
     return;
   }
-  const visits = db.visits.filter(v => v.poolId === pid).sort((a,b) => (b.date||"").localeCompare(a.date||""));
+  const visits = db.visits
+    .filter(v => v.poolId === pid)
+    .sort((a,b) => (b.date||"").localeCompare(a.date||""));
+
   if(visits.length === 0){
     historyList.innerHTML = `<div class="muted small">No visits logged for this property.</div>`;
     return;
@@ -721,19 +713,22 @@ function renderHistory(){
   visits.slice(0, 50).forEach(v => {
     const statusTag = v.status === "completed" ? "good" : (v.status === "partial" ? "warn":"bad");
     const needsCount = (v.checklist || []).filter(x => x.state === "needs").length;
+    const doneCount = (v.checklist || []).filter(x => x.done).length;
+    const totalCount = (v.checklist || []).length;
 
     const row = document.createElement("div");
     row.className = "item";
     row.innerHTML = `
       <div class="row" style="align-items:flex-start">
         <div style="flex:1">
-          <div style="font-weight:700">${fmtDate(v.date)} <span class="tag ${statusTag}">${escapeHtml(v.status)}</span></div>
-          <div class="muted small" style="margin-top:6px; white-space:pre-wrap">${escapeHtml(v.notes || "")}</div>
-          <div class="row" style="margin-top:8px; flex-wrap:wrap">
-            <span class="tag">${needsCount} needs-attention</span>
-            <span class="tag">${(v.checklist||[]).filter(x=>x.state==="ok").length} ok</span>
-            <span class="tag">${(v.checklist||[]).filter(x=>x.state==="na").length} n/a</span>
+          <div style="font-weight:700">
+            ${fmtDate(v.date)} <span class="tag ${statusTag}">${escapeHtml(v.status)}</span>
           </div>
+          <div class="row" style="margin-top:8px; flex-wrap:wrap">
+            <span class="tag">${doneCount}/${totalCount} done</span>
+            <span class="tag">${needsCount} needs-attention</span>
+          </div>
+          <div class="muted small" style="margin-top:8px; white-space:pre-wrap">${escapeHtml(v.notes || "")}</div>
         </div>
         <button class="ghost danger" data-act="del">Delete</button>
       </div>
@@ -754,14 +749,12 @@ function renderHistory(){
   }
 }
 
-/* =========================
-   Export / Import / Reset
-========================= */
+/* Export / Import / Reset */
 btnExport.addEventListener("click", () => {
   const blob = new Blob([JSON.stringify(db, null, 2)], {type:"application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `pool-tracker-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `pool-tracker-backup-${todayISO()}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 });
@@ -773,7 +766,6 @@ fileImport.addEventListener("change", async (e) => {
   try{
     const text = await file.text();
     const parsed = JSON.parse(text);
-    // minimally validate
     if(!parsed || typeof parsed !== "object") throw new Error("Invalid JSON");
     db = {
       pools: Array.isArray(parsed.pools) ? parsed.pools : [],
@@ -793,7 +785,7 @@ fileImport.addEventListener("change", async (e) => {
 });
 
 btnReset.addEventListener("click", () => {
-  if(!confirm("This will erase all local data for this tracker on this device/browser. Continue?")) return;
+  if(!confirm("This will erase all local data on this device/browser. Continue?")) return;
   localStorage.removeItem(KEY);
   db = defaultData();
   activePoolId = null;
@@ -801,16 +793,12 @@ btnReset.addEventListener("click", () => {
   renderAll();
 });
 
-/* =========================
-   Dropdowns + render all
-========================= */
+/* Dropdowns + render */
 function renderDropdowns(){
-  // taskPool + historyPool
   const options = db.pools.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
   taskPool.innerHTML = `<option value="">(Link to a property)</option>` + options;
-
   historyPool.innerHTML = `<option value="">(Select property)</option>` + options;
-  // keep selection if possible
+
   if(activePoolId && db.pools.some(p => p.id === activePoolId)){
     taskPool.value = activePoolId;
   }
@@ -826,18 +814,8 @@ function renderAll(){
   renderVisitCard();
   renderTasks();
 
-  // history defaults to active pool if none selected
   if(!historyPool.value && activePoolId) historyPool.value = activePoolId;
   renderHistory();
-}
-
-function escapeHtml(str){
-  return (str ?? "").toString()
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
 }
 
 /* boot */
