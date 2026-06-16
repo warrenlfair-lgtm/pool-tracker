@@ -1,825 +1,440 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pool Tracker • Weekly Maintenance + Tasks</title>
-  <style>
-    :root{
-      --bg:#0b1220;
-      --card:#121a2b;
-      --muted:#8ea0c7;
-      --text:#eef2ff;
-      --line:rgba(255,255,255,.10);
-      --good:#2bd576;
-      --warn:#ffcc66;
-      --bad:#ff6b6b;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      background: radial-gradient(1200px 700px at 50% 0%, #14254a 0%, var(--bg) 60%);
-      color:var(--text);
-    }
-    header{
-      padding:18px 16px;
-      border-bottom:1px solid var(--line);
-      position:sticky; top:0;
-      background: rgba(11,18,32,.85);
-      backdrop-filter: blur(10px);
-      z-index: 5;
-    }
-    header .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap; max-width:1200px; margin:0 auto;}
-    h1{font-size:18px; margin:0}
-    .pill{font-size:12px; color:var(--muted); border:1px solid var(--line); padding:6px 10px; border-radius:999px}
-    .wrap{max-width:1200px; margin:0 auto; padding:16px}
-    .grid{display:grid; grid-template-columns: 360px 1fr; gap:14px}
-    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
-
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.25);
-    }
-    .card h2{font-size:14px; margin:0 0 10px 0; color:#dbe6ff}
-    .muted{color:var(--muted)}
-    .row{display:flex; gap:10px; align-items:center}
-    .col{display:flex; flex-direction:column; gap:10px}
-    .spacer{flex:1}
-    input, select, textarea, button{
-      font: inherit;
-      color: var(--text);
-      background: rgba(0,0,0,.18);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 10px;
-      outline:none;
-    }
-    textarea{min-height:92px; resize:vertical}
-    input::placeholder, textarea::placeholder{color: rgba(238,242,255,.35)}
-    button{
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      cursor:pointer;
-      padding:10px 12px;
-    }
-    button:hover{border-color: rgba(255,255,255,.25)}
-    button.primary{background: linear-gradient(180deg, rgba(43,213,118,.25), rgba(43,213,118,.08)); border-color: rgba(43,213,118,.35)}
-    button.danger{background: linear-gradient(180deg, rgba(255,107,107,.22), rgba(255,107,107,.06)); border-color: rgba(255,107,107,.35)}
-    button.ghost{background: transparent}
-    .list{display:flex; flex-direction:column; gap:8px}
-    .item{
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.14);
-      border-radius:14px;
-      padding:10px;
-    }
-    .tag{
-      font-size:11px;
-      border:1px solid var(--line);
-      padding:3px 8px;
-      border-radius:999px;
-      color: var(--muted);
-      white-space:nowrap;
-    }
-    .tag.good{border-color: rgba(43,213,118,.35); color: #b8ffd4}
-    .tag.warn{border-color: rgba(255,204,102,.35); color: #ffe4ad}
-    .tag.bad{border-color: rgba(255,107,107,.35); color: #ffb5b5}
-    .small{font-size:12px}
-    .hr{height:1px; background: var(--line); margin:10px 0}
-    .two{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width: 540px){ .two{grid-template-columns:1fr} }
-
-    .checkline{
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-    }
-    .checkline input[type="checkbox"]{
-      width:20px; height:20px; margin-top:2px;
-      accent-color: #2bd576;
-    }
-    .checktext{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-    }
-    .checkmeta{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .kbd{font-size:11px; color:var(--muted); border:1px solid var(--line); padding:3px 7px; border-radius:8px}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fair Ventures Outdoor Services</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f6f8;color:#17202a}
+header{background:#14324a;color:white;padding:18px}
+header h1{margin:0;font-size:24px}
+header p{margin:5px 0 0;color:#dbeafe}
+main{padding:14px;max-width:1100px;margin:auto}
+.card{background:white;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px}
+input,select,textarea,button{font-size:15px;padding:10px;border-radius:8px;border:1px solid #cbd5e1}
+button{background:#14324a;color:white;border:0;font-weight:bold;cursor:pointer}
+button.red{background:#b42318}
+.metric{font-size:28px;font-weight:bold;color:#14324a}
+.small{color:#64748b;font-size:13px}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid #ddd;text-align:left}
+th{background:#eef4f8}
+.badge{display:inline-block;border-radius:20px;padding:4px 8px;font-size:12px;font-weight:bold}
+.standard{background:#dcfce7;color:#166534}
+.turnover{background:#fee2e2;color:#991b1b}
+.offcycle{background:#ffedd5;color:#9a3412}
+.manual{background:#dbeafe;color:#1e40af}
+.tabs{display:flex;gap:6px;overflow-x:auto;background:white;padding:8px;border-bottom:1px solid #ddd}
+.tabs button{white-space:nowrap;background:#e8eef5;color:#14324a}
+.tabs button.active{background:#14324a;color:white}
+</style>
 </head>
+
 <body>
 <header>
-  <div class="row">
-    <h1>Pool Tracker</h1>
-    <span class="pill">Weekly maintenance logs + task list</span>
-    <div class="spacer"></div>
-    <button class="ghost" id="btnExport" title="Export data to a JSON file">Export</button>
-    <button class="ghost" id="btnImport" title="Import data from JSON">Import</button>
-    <input id="fileImport" type="file" accept="application/json" style="display:none" />
-    <button class="ghost" id="btnReset" title="Clear local data">Reset</button>
-  </div>
+<h1>Fair Ventures Outdoor Services</h1>
+<p>Property Operations Dashboard</p>
 </header>
 
-<div class="wrap">
-  <div class="grid">
-    <!-- LEFT -->
-    <div class="col">
-      <div class="card">
-        <h2>Properties (Pools)</h2>
-        <div class="two">
-          <input id="poolName" placeholder="Property name (e.g., Smith Airbnb)" />
-          <input id="poolAddress" placeholder="Address (optional)" />
-        </div>
-        <div class="two">
-          <input id="poolVolume" placeholder="Gallons (optional)" inputmode="numeric" />
-          <input id="poolType" placeholder="Type (e.g., salt / chlorine)" />
-        </div>
-        <div class="row">
-          <button class="primary" id="btnAddPool">Add Property</button>
-          <div class="spacer"></div>
-          <span class="muted small">Tip: click a property to work it</span>
-        </div>
-        <div class="hr"></div>
-        <div class="list" id="poolList"></div>
-      </div>
-
-      <div class="card">
-        <h2>Weekly Checklist (editable)</h2>
-        <div class="row">
-          <input id="checkItemText" placeholder="Add checklist item (e.g., Empty skimmer baskets)" />
-          <button id="btnAddCheck">Add</button>
-        </div>
-        <div class="muted small">These items appear on every weekly visit form. Add/remove anytime.</div>
-        <div class="hr"></div>
-        <div class="list" id="checklistManager"></div>
-      </div>
-    </div>
-
-    <!-- RIGHT -->
-    <div class="col">
-      <div class="card">
-        <h2>Weekly Maintenance Visit</h2>
-        <div class="muted small" id="activePoolHint">Select a property on the left.</div>
-
-        <div id="visitForm" style="display:none">
-          <div class="two" style="margin-top:10px">
-            <input id="visitDate" type="date" />
-            <select id="visitStatus">
-              <option value="completed">Completed</option>
-              <option value="partial">Partial</option>
-              <option value="skipped">Skipped</option>
-            </select>
-          </div>
-
-          <textarea id="visitNotes" placeholder="Notes (chem readings, what you adjusted, customer notes, etc.)"></textarea>
-
-          <div class="hr"></div>
-          <div class="muted small">
-            Checklist — tech must check <b>Done</b>. Use “Needs attention” to auto-create a task.
-          </div>
-          <div class="list" id="visitChecklist" style="margin-top:10px"></div>
-
-          <div class="row" style="margin-top:10px">
-            <button class="primary" id="btnSaveVisit">Save Visit</button>
-            <button class="ghost" id="btnClearVisit">Clear</button>
-            <div class="spacer"></div>
-            <span class="kbd">Auto-saves locally</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Task List</h2>
-
-        <div class="two">
-          <select id="taskPool"><option value="">(Link to a property)</option></select>
-          <input id="taskDue" type="date" />
-        </div>
-        <div class="row">
-          <input id="taskText" placeholder="Manual task (e.g., Replace pressure gauge)" style="flex:1" />
-          <button id="btnAddTask">Add Task</button>
-        </div>
-        <div class="muted small">Tasks are created from “Needs attention” checklist items or added manually.</div>
-
-        <div class="hr"></div>
-        <div class="row">
-          <select id="taskFilter">
-            <option value="open">Open tasks</option>
-            <option value="all">All tasks</option>
-            <option value="done">Completed tasks</option>
-          </select>
-          <div class="spacer"></div>
-          <button class="ghost" id="btnClearDone">Clear completed</button>
-        </div>
-
-        <div class="list" id="taskList" style="margin-top:10px"></div>
-      </div>
-
-      <div class="card">
-        <h2>Visit History</h2>
-        <div class="row">
-          <select id="historyPool" style="flex:1"></select>
-          <button class="ghost danger" id="btnDeleteAllVisits">Delete all visits (selected)</button>
-        </div>
-        <div class="hr"></div>
-        <div class="list" id="historyList"></div>
-      </div>
-    </div>
-  </div>
+<div class="tabs">
+<button onclick="showTab('dashboard')" id="tab-dashboard" class="active">Dashboard</button>
+<button onclick="showTab('properties')" id="tab-properties">Properties</button>
+<button onclick="showTab('reservations')" id="tab-reservations">Reservations</button>
+<button onclick="showTab('manual')" id="tab-manual">Manual Entry</button>
+<button onclick="showTab('schedule')" id="tab-schedule">Schedule</button>
+<button onclick="showTab('billing')" id="tab-billing">Billing</button>
 </div>
 
+<main>
+
+<section id="dashboard" class="tab">
+<div class="grid">
+<div class="card"><div class="metric" id="activeProps">0</div><div class="small">Active Properties</div></div>
+<div class="card"><div class="metric" id="totalJobs">0</div><div class="small">Scheduled Jobs</div></div>
+<div class="card"><div class="metric" id="billableJobs">0</div><div class="small">Billable Jobs</div></div>
+<div class="card"><div class="metric" id="totalRevenue">$0</div><div class="small">Billable Revenue</div></div>
+</div>
+
+<div class="card">
+<h2>Today / Upcoming Route</h2>
+<div id="dashboardJobs"></div>
+</div>
+</section>
+
+<section id="properties" class="tab" style="display:none">
+<div class="card">
+<h2>Property Setup</h2>
+<div class="row">
+<input id="propName" placeholder="Property Name">
+<input id="propAddress" placeholder="Address">
+<select id="propDay">
+<option>Wednesday</option>
+<option>Thursday</option>
+</select>
+<input id="propFee" type="number" value="50" placeholder="Extra Pool Fee">
+<input id="propIcal" placeholder="Hostaway iCal URL">
+<button onclick="addProperty()">Add Property</button>
+</div>
+<table>
+<thead><tr><th>Property</th><th>Standard Day</th><th>Extra Fee</th><th>iCal URL</th><th></th></tr></thead>
+<tbody id="propertyTable"></tbody>
+</table>
+</div>
+</section>
+
+<section id="reservations" class="tab" style="display:none">
+<div class="card">
+<h2>Add Reservation</h2>
+<p class="small">Enter check-in and check-out. The app decides whether it becomes Standard, Turnover, or Off-Cycle.</p>
+<div class="row">
+<select id="resProperty"></select>
+<input id="resGuest" placeholder="Guest Name">
+<input id="resCheckIn" type="date">
+<input id="resCheckOut" type="date">
+<button onclick="addReservation()">Add Reservation</button>
+</div>
+<table>
+<thead><tr><th>Property</th><th>Guest</th><th>Check-In</th><th>Check-Out</th><th></th></tr></thead>
+<tbody id="reservationTable"></tbody>
+</table>
+</div>
+</section>
+
+<section id="manual" class="tab" style="display:none">
+<div class="card">
+<h2>Manual Service Entry</h2>
+<div class="row">
+<select id="manualProperty"></select>
+<input id="manualDate" type="date">
+<select id="manualType">
+<option>Emergency Pool Call</option>
+<option>Emergency Hot Tub Call</option>
+<option>Additional Cleaning</option>
+<option>Pool Only</option>
+<option>Hot Tub Only</option>
+<option>Lawn Service</option>
+<option>Repair</option>
+<option>Other</option>
+</select>
+<input id="manualAssigned" placeholder="Assigned To" value="Warren">
+<input id="manualFee" type="number" placeholder="Service Fee" value="85">
+<input id="manualChems" type="number" placeholder="Chemicals" value="0">
+<select id="manualBillable">
+<option value="true">Billable</option>
+<option value="false">Not Billable</option>
+</select>
+</div>
+<p><textarea id="manualNotes" rows="3" placeholder="Notes"></textarea></p>
+<button onclick="addManualJob()">Save Manual Service</button>
+<table>
+<thead><tr><th>Date</th><th>Property</th><th>Service</th><th>Fee</th><th>Chems</th><th></th></tr></thead>
+<tbody id="manualTable"></tbody>
+</table>
+</div>
+</section>
+
+<section id="schedule" class="tab" style="display:none">
+<div class="card">
+<h2>Generated Schedule</h2>
+<div id="scheduleList"></div>
+</div>
+</section>
+
+<section id="billing" class="tab" style="display:none">
+<div class="card">
+<h2>Billing Report</h2>
+<div id="billingReport"></div>
+</div>
+</section>
+
+</main>
+
 <script>
-const KEY = "POOL_TRACKER_V2";
-function uid(){ return Math.random().toString(16).slice(2) + Date.now().toString(16); }
+const KEY="fairVenturesOps_v1";
 
-const defaultData = () => ({
-  pools: [],
-  checklist: [
-    { id: uid(), text: "Empty skimmer baskets" },
-    { id: uid(), text: "Brush walls / steps" },
-    { id: uid(), text: "Vacuum / net debris" },
-    { id: uid(), text: "Backwash / clean filter (as needed)" },
-    { id: uid(), text: "Test & adjust water chemistry" }
-  ],
-  visits: [],
-  tasks: []
+let data = JSON.parse(localStorage.getItem(KEY)) || {
+properties:[
+{id:crypto.randomUUID(),name:"Debbie Home",address:"",standardDay:"Thursday",extraFee:50,icalUrl:""},
+{id:crypto.randomUUID(),name:"Ferguson Home",address:"",standardDay:"Wednesday",extraFee:50,icalUrl:""},
+{id:crypto.randomUUID(),name:"Bransby Home",address:"",standardDay:"Thursday",extraFee:50,icalUrl:""},
+{id:crypto.randomUUID(),name:"CrossBow Home",address:"",standardDay:"Wednesday",extraFee:50,icalUrl:""},
+{id:crypto.randomUUID(),name:"Fallowfield Home",address:"",standardDay:"Thursday",extraFee:50,icalUrl:""}
+],
+reservations:[],
+manualJobs:[]
+};
+
+function save(){localStorage.setItem(KEY,JSON.stringify(data));}
+
+function showTab(id){
+document.querySelectorAll(".tab").forEach(t=>t.style.display="none");
+document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+document.getElementById(id).style.display="block";
+document.getElementById("tab-"+id).classList.add("active");
+render();
+}
+
+function dayName(date){
+return new Date(date+"T12:00:00").toLocaleDateString("en-US",{weekday:"long"});
+}
+
+function niceDate(date){
+return new Date(date+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",weekday:"short"});
+}
+
+function isStandardDay(date){
+let d=dayName(date);
+return d==="Wednesday" || d==="Thursday";
+}
+
+function nextStandardDate(checkout, standardDay){
+let target=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"].indexOf(standardDay);
+let base=new Date(checkout+"T12:00:00");
+for(let i=0;i<=7;i++){
+let d=new Date(base);
+d.setDate(base.getDate()+i);
+if(d.getDay()===target)return d.toISOString().slice(0,10);
+}
+return checkout;
+}
+
+function diffHours(checkout,nextCheckIn){
+let a=new Date(checkout+"T11:00:00").getTime();
+let b=new Date(nextCheckIn+"T16:00:00").getTime();
+return (b-a)/36e5;
+}
+
+function getProperty(id){return data.properties.find(p=>p.id===id);}
+
+function generateSchedule(){
+let jobs=[];
+
+data.properties.forEach(prop=>{
+let res=data.reservations.filter(r=>r.propertyId===prop.id).sort((a,b)=>a.checkIn.localeCompare(b.checkIn));
+
+res.forEach((r,i)=>{
+let next=res.slice(i+1).find(x=>x.checkIn>=r.checkOut);
+let standardDate=nextStandardDate(r.checkOut,prop.standardDay);
+
+let date=standardDate;
+let label="Standard Cleaning";
+let reason="Handled on standard weekly cleaning route";
+let billable=false;
+let fee=0;
+
+if(next){
+let hours=diffHours(r.checkOut,next.checkIn);
+
+if(hours<=48){
+date=r.checkOut;
+label="Turnover Cleaning";
+reason="Next check-in within 48 hours";
+}
+else if(next.checkIn<standardDate){
+date=r.checkOut;
+label="Off-Cycle Cleaning";
+reason="Next check-in before standard cleaning day";
+}
+}
+
+if((label==="Turnover Cleaning" || label==="Off-Cycle Cleaning") && !isStandardDay(date)){
+billable=true;
+fee=Number(prop.extraFee||50);
+}
+
+jobs.push({
+id:"res-"+r.id,
+date,
+property:prop.name,
+label,
+source:"Reservation",
+guest:r.guest,
+reason,
+billable,
+fee,
+chems:0,
+notes:`Checkout ${r.checkOut}${next ? " | Next check-in "+next.checkIn : " | No next reservation"}`
+});
+});
 });
 
-let db = load();
-function load(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(!raw) return defaultData();
-    const parsed = JSON.parse(raw);
-    return {
-      pools: Array.isArray(parsed.pools) ? parsed.pools : [],
-      checklist: Array.isArray(parsed.checklist) ? parsed.checklist : defaultData().checklist,
-      visits: Array.isArray(parsed.visits) ? parsed.visits : [],
-      tasks: Array.isArray(parsed.tasks) ? parsed.tasks : []
-    };
-  }catch(e){ return defaultData(); }
-}
-function save(){ localStorage.setItem(KEY, JSON.stringify(db)); }
-
-const el = (id) => document.getElementById(id);
-
-const poolList = el("poolList");
-const poolName = el("poolName");
-const poolAddress = el("poolAddress");
-const poolVolume = el("poolVolume");
-const poolType = el("poolType");
-const btnAddPool = el("btnAddPool");
-
-const checkItemText = el("checkItemText");
-const btnAddCheck = el("btnAddCheck");
-const checklistManager = el("checklistManager");
-
-const activePoolHint = el("activePoolHint");
-const visitForm = el("visitForm");
-const visitDate = el("visitDate");
-const visitStatus = el("visitStatus");
-const visitNotes = el("visitNotes");
-const visitChecklist = el("visitChecklist");
-const btnSaveVisit = el("btnSaveVisit");
-const btnClearVisit = el("btnClearVisit");
-
-const taskPool = el("taskPool");
-const taskDue = el("taskDue");
-const taskText = el("taskText");
-const btnAddTask = el("btnAddTask");
-const taskFilter = el("taskFilter");
-const btnClearDone = el("btnClearDone");
-const taskList = el("taskList");
-
-const historyPool = el("historyPool");
-const historyList = el("historyList");
-const btnDeleteAllVisits = el("btnDeleteAllVisits");
-
-const btnExport = el("btnExport");
-const btnImport = el("btnImport");
-const fileImport = el("fileImport");
-const btnReset = el("btnReset");
-
-let activePoolId = null;
-
-function escapeHtml(str){
-  return (str ?? "").toString()
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-function fmtDate(d){
-  if(!d) return "";
-  const [y,m,day] = d.split("-");
-  return `${m}/${day}/${y}`;
-}
-function getPool(id){ return db.pools.find(p => p.id === id); }
-function todayISO(){ return new Date().toISOString().slice(0,10); }
-
-function countOpenTasksForPool(poolId){
-  return db.tasks.filter(t => !t.done && t.poolId === poolId).length;
-}
-
-function ensureNeedsTask(poolId, itemText){
-  const normalized = itemText.trim().toLowerCase();
-  const existing = db.tasks.find(t =>
-    !t.done &&
-    t.poolId === poolId &&
-    (t.text || "").trim().toLowerCase() === normalized
-  );
-  if(existing) return existing;
-
-  const task = {
-    id: uid(),
-    poolId,
-    text: itemText,
-    due: "",
-    done: false,
-    createdAt: new Date().toISOString(),
-    source: "needs-attention"
-  };
-  db.tasks.unshift(task);
-  save();
-  renderTasks();
-  return task;
-}
-
-/* Pools */
-btnAddPool.addEventListener("click", () => {
-  const name = poolName.value.trim();
-  if(!name) return alert("Property name is required.");
-  db.pools.unshift({
-    id: uid(),
-    name,
-    address: poolAddress.value.trim(),
-    gallons: poolVolume.value.trim(),
-    type: poolType.value.trim()
-  });
-  poolName.value=""; poolAddress.value=""; poolVolume.value=""; poolType.value="";
-  save(); renderAll();
+data.manualJobs.forEach(j=>{
+let prop=getProperty(j.propertyId);
+jobs.push({
+id:"manual-"+j.id,
+date:j.date,
+property:prop?prop.name:"Unknown",
+label:j.type,
+source:"Manual Entry",
+guest:"",
+reason:"Manual service call",
+billable:j.billable,
+fee:Number(j.fee||0),
+chems:Number(j.chems||0),
+notes:j.notes||""
+});
 });
 
-function renderPools(){
-  poolList.innerHTML = "";
-  if(db.pools.length === 0){
-    poolList.innerHTML = `<div class="muted small">No properties yet. Add one above.</div>`;
-    return;
-  }
-  db.pools.forEach(p => {
-    const wrap = document.createElement("div");
-    wrap.className = "item";
-    wrap.style.borderColor = (p.id === activePoolId) ? "rgba(43,213,118,.35)" : "var(--line)";
-    wrap.innerHTML = `
-      <div class="row" style="align-items:flex-start">
-        <div style="flex:1">
-          <div style="font-weight:650">${escapeHtml(p.name)}</div>
-          <div class="muted small">${escapeHtml(p.address || "")}</div>
-          <div class="muted small">${escapeHtml((p.type||"") + (p.gallons?` • ${p.gallons} gal`:""))}</div>
-        </div>
-        <button class="ghost" data-act="open">Open</button>
-      </div>
-      <div class="row" style="margin-top:8px">
-        <button class="ghost" data-act="edit">Edit</button>
-        <button class="ghost danger" data-act="del">Delete</button>
-        <div class="spacer"></div>
-        <span class="tag">${countOpenTasksForPool(p.id)} open tasks</span>
-      </div>
-    `;
-    wrap.querySelector('[data-act="open"]').addEventListener("click", () => setActivePool(p.id));
-    wrap.querySelector('[data-act="del"]').addEventListener("click", () => deletePool(p.id));
-    wrap.querySelector('[data-act="edit"]').addEventListener("click", () => editPool(p.id));
-    poolList.appendChild(wrap);
-  });
-}
-function setActivePool(poolId){
-  activePoolId = poolId;
-  visitDate.value = todayISO();
-  visitStatus.value = "completed";
-  visitNotes.value = "";
-  renderAll();
-}
-function editPool(poolId){
-  const p = getPool(poolId);
-  if(!p) return;
-  const name = prompt("Property name:", p.name);
-  if(name === null) return;
-  const address = prompt("Address (optional):", p.address || "") ?? (p.address || "");
-  const gallons = prompt("Gallons (optional):", p.gallons || "") ?? (p.gallons || "");
-  const type = prompt("Type (optional):", p.type || "") ?? (p.type || "");
-
-  p.name = name.trim() || p.name;
-  p.address = (address || "").trim();
-  p.gallons = (gallons || "").trim();
-  p.type = (type || "").trim();
-
-  save(); renderAll();
-}
-function deletePool(poolId){
-  const p = getPool(poolId);
-  if(!p) return;
-  if(!confirm(`Delete "${p.name}"? This also removes its visits and linked tasks.`)) return;
-  db.pools = db.pools.filter(x => x.id !== poolId);
-  db.visits = db.visits.filter(v => v.poolId !== poolId);
-  db.tasks = db.tasks.filter(t => t.poolId !== poolId);
-  if(activePoolId === poolId) activePoolId = null;
-  save(); renderAll();
+return jobs.sort((a,b)=>a.date.localeCompare(b.date)||a.property.localeCompare(b.property));
 }
 
-/* Checklist manager */
-btnAddCheck.addEventListener("click", () => {
-  const text = checkItemText.value.trim();
-  if(!text) return;
-  db.checklist.push({ id: uid(), text });
-  checkItemText.value = "";
-  save(); renderAll();
+function badge(label){
+if(label.includes("Turnover"))return "turnover";
+if(label.includes("Off-Cycle"))return "offcycle";
+if(label.includes("Emergency")||label.includes("Manual"))return "manual";
+return "standard";
+}
+
+function addProperty(){
+let name=document.getElementById("propName").value.trim();
+if(!name)return alert("Property name required");
+data.properties.push({
+id:crypto.randomUUID(),
+name,
+address:document.getElementById("propAddress").value,
+standardDay:document.getElementById("propDay").value,
+extraFee:Number(document.getElementById("propFee").value||50),
+icalUrl:document.getElementById("propIcal").value
 });
-function renderChecklistManager(){
-  checklistManager.innerHTML = "";
-  if(db.checklist.length === 0){
-    checklistManager.innerHTML = `<div class="muted small">No checklist items. Add one above.</div>`;
-    return;
-  }
-  db.checklist.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="row">
-        <div style="flex:1">${escapeHtml(item.text)}</div>
-        <button class="ghost" data-act="rename">Rename</button>
-        <button class="ghost danger" data-act="remove">Remove</button>
-      </div>
-    `;
-    row.querySelector('[data-act="rename"]').addEventListener("click", () => {
-      const next = prompt("Checklist item:", item.text);
-      if(next === null) return;
-      item.text = next.trim() || item.text;
-      save(); renderAll();
-    });
-    row.querySelector('[data-act="remove"]').addEventListener("click", () => {
-      if(!confirm("Remove this checklist item?")) return;
-      db.checklist = db.checklist.filter(x => x.id !== item.id);
-      save(); renderAll();
-    });
-    checklistManager.appendChild(row);
-  });
+save();render();
+document.getElementById("propName").value="";
+document.getElementById("propAddress").value="";
+document.getElementById("propIcal").value="";
 }
 
-/* Weekly visit checklist (checkbox-driven) */
-btnClearVisit.addEventListener("click", () => {
-  visitNotes.value = "";
-  visitStatus.value = "completed";
-  renderVisitChecklist();
+function addReservation(){
+let propertyId=document.getElementById("resProperty").value;
+let checkIn=document.getElementById("resCheckIn").value;
+let checkOut=document.getElementById("resCheckOut").value;
+if(!propertyId||!checkIn||!checkOut)return alert("Property, check-in, and check-out required");
+data.reservations.push({
+id:crypto.randomUUID(),
+propertyId,
+guest:document.getElementById("resGuest").value,
+checkIn,
+checkOut
+});
+save();render();
+document.getElementById("resGuest").value="";
+document.getElementById("resCheckIn").value="";
+document.getElementById("resCheckOut").value="";
+}
+
+function addManualJob(){
+let propertyId=document.getElementById("manualProperty").value;
+let date=document.getElementById("manualDate").value;
+if(!propertyId||!date)return alert("Property and date required");
+data.manualJobs.push({
+id:crypto.randomUUID(),
+propertyId,
+date,
+type:document.getElementById("manualType").value,
+assigned:document.getElementById("manualAssigned").value,
+fee:Number(document.getElementById("manualFee").value||0),
+chems:Number(document.getElementById("manualChems").value||0),
+billable:document.getElementById("manualBillable").value==="true",
+notes:document.getElementById("manualNotes").value
+});
+save();render();
+document.getElementById("manualDate").value="";
+document.getElementById("manualNotes").value="";
+}
+
+function removeProperty(id){data.properties=data.properties.filter(p=>p.id!==id);save();render();}
+function removeReservation(id){data.reservations=data.reservations.filter(r=>r.id!==id);save();render();}
+function removeManual(id){data.manualJobs=data.manualJobs.filter(j=>j.id!==id);save();render();}
+
+function render(){
+let schedule=generateSchedule();
+
+document.getElementById("activeProps").innerText=data.properties.length;
+document.getElementById("totalJobs").innerText=schedule.length;
+document.getElementById("billableJobs").innerText=schedule.filter(j=>j.billable).length;
+document.getElementById("totalRevenue").innerText="$"+schedule.reduce((s,j)=>s+(j.billable?Number(j.fee)+Number(j.chems):0),0);
+
+["resProperty","manualProperty"].forEach(id=>{
+let sel=document.getElementById(id);
+let current=sel.value;
+sel.innerHTML=data.properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join("");
+if(current)sel.value=current;
 });
 
-function renderVisitCard(){
-  if(!activePoolId){
-    activePoolHint.textContent = "Select a property on the left.";
-    visitForm.style.display = "none";
-    return;
-  }
-  const p = getPool(activePoolId);
-  activePoolHint.innerHTML = `<div><b>${escapeHtml(p.name)}</b> <span class="muted">(${escapeHtml(p.address || "no address")})</span></div>`;
-  visitForm.style.display = "block";
-  renderVisitChecklist();
-}
+document.getElementById("propertyTable").innerHTML=data.properties.map(p=>`
+<tr>
+<td>${p.name}</td>
+<td>${p.standardDay}</td>
+<td>$${p.extraFee}</td>
+<td>${p.icalUrl||""}</td>
+<td><button class="red" onclick="removeProperty('${p.id}')">Remove</button></td>
+</tr>`).join("");
 
-function renderVisitChecklist(){
-  visitChecklist.innerHTML = "";
+document.getElementById("reservationTable").innerHTML=data.reservations.map(r=>{
+let p=getProperty(r.propertyId);
+return `<tr>
+<td>${p?p.name:""}</td>
+<td>${r.guest||""}</td>
+<td>${r.checkIn}</td>
+<td>${r.checkOut}</td>
+<td><button class="red" onclick="removeReservation('${r.id}')">Remove</button></td>
+</tr>`;
+}).join("");
 
-  if(db.checklist.length === 0){
-    visitChecklist.innerHTML = `<div class="muted small">No checklist items. Add some on the left.</div>`;
-    return;
-  }
+document.getElementById("manualTable").innerHTML=data.manualJobs.map(j=>{
+let p=getProperty(j.propertyId);
+return `<tr>
+<td>${j.date}</td>
+<td>${p?p.name:""}</td>
+<td>${j.type}</td>
+<td>$${j.fee}</td>
+<td>$${j.chems}</td>
+<td><button class="red" onclick="removeManual('${j.id}')">Remove</button></td>
+</tr>`;
+}).join("");
 
-  db.checklist.forEach(ci => {
-    const row = document.createElement("div");
-    row.className = "item";
-    row.setAttribute("data-itemid", ci.id);
+let upcoming=schedule.slice(0,8);
+document.getElementById("dashboardJobs").innerHTML=upcoming.length?upcoming.map(jobCard).join(""):"<p class='small'>No jobs yet.</p>";
 
-    row.innerHTML = `
-      <div class="checkline">
-        <input type="checkbox" data-done />
-        <div class="checktext">
-          <div style="font-weight:650">${escapeHtml(ci.text)}</div>
-          <div class="checkmeta">
-            <span class="muted small">Done checkbox required</span>
-            <select data-state>
-              <option value="ok">OK</option>
-              <option value="needs">Needs attention</option>
-              <option value="na">N/A</option>
-            </select>
-          </div>
-          <div class="muted small" data-hint>Tip: set “Needs attention” to create a task.</div>
-        </div>
-      </div>
-    `;
-
-    const stateSel = row.querySelector("[data-state]");
-    stateSel.addEventListener("change", () => {
-      if(stateSel.value === "needs" && activePoolId){
-        ensureNeedsTask(activePoolId, ci.text);
-        row.querySelector("[data-hint]").innerHTML = `<span class="tag warn">Task created (or already existed)</span>`;
-      } else if(stateSel.value === "na"){
-        row.querySelector("[data-hint]").innerHTML = `<span class="tag">Marked N/A</span>`;
-      } else {
-        row.querySelector("[data-hint]").textContent = "Tip: set “Needs attention” to create a task.";
-      }
-    });
-
-    visitChecklist.appendChild(row);
-  });
-}
-
-btnSaveVisit.addEventListener("click", () => {
-  if(!activePoolId) return alert("Select a property first.");
-  const date = visitDate.value;
-  if(!date) return alert("Pick a date.");
-
-  const rows = Array.from(visitChecklist.querySelectorAll(".item[data-itemid]"));
-  const entries = rows.map(r => {
-    const itemId = r.getAttribute("data-itemid");
-    const done = r.querySelector("[data-done]").checked;
-    const state = r.querySelector("[data-state]").value; // ok|needs|na
-    return { itemId, done, state };
-  });
-
-  // enforce “physically mark” concept: if OK or Needs, require Done checked
-  const missing = entries.filter(e => (e.state === "ok" || e.state === "needs") && !e.done);
-  if(missing.length){
-    return alert("Some checklist items are marked OK/Needs but not checked Done. Either check Done or set to N/A.");
-  }
-
-  // ensure tasks exist for needs (also on save, in case dropdown wasn’t changed live)
-  entries.filter(e => e.state === "needs").forEach(e => {
-    const itemText = (db.checklist.find(ci => ci.id === e.itemId)?.text) || "Checklist item";
-    ensureNeedsTask(activePoolId, itemText);
-  });
-
-  db.visits.unshift({
-    id: uid(),
-    poolId: activePoolId,
-    date,
-    status: visitStatus.value,
-    notes: visitNotes.value.trim(),
-    checklist: entries
-  });
-
-  save();
-  visitNotes.value = "";
-  visitStatus.value = "completed";
-  renderAll();
-  alert(`Saved visit (${fmtDate(date)}).`);
+let grouped={};
+schedule.forEach(j=>{
+if(!grouped[j.date])grouped[j.date]=[];
+grouped[j.date].push(j);
 });
 
-/* Tasks */
-btnAddTask.addEventListener("click", () => {
-  const text = taskText.value.trim();
-  if(!text) return;
+document.getElementById("scheduleList").innerHTML=Object.keys(grouped).sort().map(date=>`
+<div class="card">
+<h3>${niceDate(date)}</h3>
+${grouped[date].map(jobCard).join("")}
+</div>`).join("");
 
-  db.tasks.unshift({
-    id: uid(),
-    poolId: taskPool.value || "",
-    text,
-    due: taskDue.value || "",
-    done: false,
-    createdAt: new Date().toISOString(),
-    source: "manual"
-  });
+let billable=schedule.filter(j=>j.billable);
+let service=billable.reduce((s,j)=>s+Number(j.fee||0),0);
+let chems=schedule.reduce((s,j)=>s+Number(j.chems||0),0);
 
-  taskText.value = "";
-  taskDue.value = "";
-  save();
-  renderAll();
-});
-
-btnClearDone.addEventListener("click", () => {
-  if(!confirm("Clear ALL completed tasks?")) return;
-  db.tasks = db.tasks.filter(t => !t.done);
-  save(); renderAll();
-});
-taskFilter.addEventListener("change", renderTasks);
-
-function isOverdue(t){
-  if(!t.due || t.done) return false;
-  return t.due < todayISO();
+document.getElementById("billingReport").innerHTML=`
+<div class="grid">
+<div><div class="metric">${billable.length}</div><div class="small">Billable Jobs</div></div>
+<div><div class="metric">$${service}</div><div class="small">Service Fees</div></div>
+<div><div class="metric">$${chems}</div><div class="small">Chemicals</div></div>
+<div><div class="metric">$${service+chems}</div><div class="small">Total</div></div>
+</div>
+`;
 }
 
-function renderTasks(){
-  taskList.innerHTML = "";
-  const mode = taskFilter.value;
-  let tasks = [...db.tasks];
-  if(mode === "open") tasks = tasks.filter(t => !t.done);
-  if(mode === "done") tasks = tasks.filter(t => t.done);
-
-  if(tasks.length === 0){
-    taskList.innerHTML = `<div class="muted small">No tasks in this view.</div>`;
-    return;
-  }
-
-  tasks.forEach(t => {
-    const p = t.poolId ? getPool(t.poolId) : null;
-    const dueTag = t.due ? `<span class="tag ${isOverdue(t) ? "bad":"warn"}">Due ${fmtDate(t.due)}</span>` : `<span class="tag">No due date</span>`;
-    const poolTag = p ? `<span class="tag good">${escapeHtml(p.name)}</span>` : `<span class="tag">Unlinked</span>`;
-
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="row" style="align-items:flex-start">
-        <input type="checkbox" ${t.done ? "checked":""} />
-        <div style="flex:1">
-          <div style="font-weight:650; text-decoration:${t.done?"line-through":"none"}">${escapeHtml(t.text)}</div>
-          <div class="row" style="margin-top:6px; flex-wrap:wrap">
-            ${poolTag}
-            ${dueTag}
-            <span class="tag">Source: ${escapeHtml(t.source || "manual")}</span>
-          </div>
-        </div>
-        <button class="ghost" data-act="edit">Edit</button>
-        <button class="ghost danger" data-act="del">Delete</button>
-      </div>
-    `;
-
-    row.querySelector('input[type="checkbox"]').addEventListener("change", (e) => {
-      t.done = e.target.checked;
-      save(); renderAll();
-    });
-
-    row.querySelector('[data-act="del"]').addEventListener("click", () => {
-      if(!confirm("Delete this task?")) return;
-      db.tasks = db.tasks.filter(x => x.id !== t.id);
-      save(); renderAll();
-    });
-
-    row.querySelector('[data-act="edit"]').addEventListener("click", () => {
-      const next = prompt("Task:", t.text);
-      if(next === null) return;
-      t.text = next.trim() || t.text;
-
-      const link = prompt("Link to property name (exact) or blank to unlink:", p ? p.name : "");
-      if(link !== null){
-        const match = db.pools.find(pp => pp.name.toLowerCase().trim() === link.toLowerCase().trim());
-        t.poolId = match ? match.id : "";
-      }
-
-      const due = prompt("Due date (YYYY-MM-DD) or blank:", t.due || "");
-      if(due !== null) t.due = due.trim();
-
-      save(); renderAll();
-    });
-
-    taskList.appendChild(row);
-  });
+function jobCard(j){
+return `
+<div class="card">
+<strong>${j.property}</strong> — ${niceDate(j.date)}<br>
+<span class="badge ${badge(j.label)}">${j.label}</span>
+<span class="badge ${j.billable?'turnover':'standard'}">${j.billable?'$'+j.fee+' + chems':'Included'}</span>
+<span class="badge manual">${j.source}</span>
+<p class="small">${j.reason}. ${j.notes||""}</p>
+</div>`;
 }
 
-/* Visit history */
-btnDeleteAllVisits.addEventListener("click", () => {
-  const pid = historyPool.value;
-  if(!pid) return;
-  const p = getPool(pid);
-  if(!p) return;
-  if(!confirm(`Delete ALL visits for "${p.name}"?`)) return;
-  db.visits = db.visits.filter(v => v.poolId !== pid);
-  save(); renderAll();
-});
-historyPool.addEventListener("change", renderHistory);
-
-function renderHistory(){
-  historyList.innerHTML = "";
-  const pid = historyPool.value;
-  if(!pid){
-    historyList.innerHTML = `<div class="muted small">Choose a property to view history.</div>`;
-    return;
-  }
-  const visits = db.visits
-    .filter(v => v.poolId === pid)
-    .sort((a,b) => (b.date||"").localeCompare(a.date||""));
-
-  if(visits.length === 0){
-    historyList.innerHTML = `<div class="muted small">No visits logged for this property.</div>`;
-    return;
-  }
-
-  visits.slice(0, 50).forEach(v => {
-    const statusTag = v.status === "completed" ? "good" : (v.status === "partial" ? "warn":"bad");
-    const needsCount = (v.checklist || []).filter(x => x.state === "needs").length;
-    const doneCount = (v.checklist || []).filter(x => x.done).length;
-    const totalCount = (v.checklist || []).length;
-
-    const row = document.createElement("div");
-    row.className = "item";
-    row.innerHTML = `
-      <div class="row" style="align-items:flex-start">
-        <div style="flex:1">
-          <div style="font-weight:700">
-            ${fmtDate(v.date)} <span class="tag ${statusTag}">${escapeHtml(v.status)}</span>
-          </div>
-          <div class="row" style="margin-top:8px; flex-wrap:wrap">
-            <span class="tag">${doneCount}/${totalCount} done</span>
-            <span class="tag">${needsCount} needs-attention</span>
-          </div>
-          <div class="muted small" style="margin-top:8px; white-space:pre-wrap">${escapeHtml(v.notes || "")}</div>
-        </div>
-        <button class="ghost danger" data-act="del">Delete</button>
-      </div>
-    `;
-    row.querySelector('[data-act="del"]').addEventListener("click", () => {
-      if(!confirm("Delete this visit?")) return;
-      db.visits = db.visits.filter(x => x.id !== v.id);
-      save(); renderAll();
-    });
-    historyList.appendChild(row);
-  });
-
-  if(visits.length > 50){
-    const note = document.createElement("div");
-    note.className = "muted small";
-    note.textContent = "Showing latest 50 visits.";
-    historyList.appendChild(note);
-  }
-}
-
-/* Export / Import / Reset */
-btnExport.addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(db, null, 2)], {type:"application/json"});
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `pool-tracker-backup-${todayISO()}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-
-btnImport.addEventListener("click", () => fileImport.click());
-fileImport.addEventListener("change", async (e) => {
-  const file = e.target.files?.[0];
-  if(!file) return;
-  try{
-    const text = await file.text();
-    const parsed = JSON.parse(text);
-    if(!parsed || typeof parsed !== "object") throw new Error("Invalid JSON");
-    db = {
-      pools: Array.isArray(parsed.pools) ? parsed.pools : [],
-      checklist: Array.isArray(parsed.checklist) ? parsed.checklist : defaultData().checklist,
-      visits: Array.isArray(parsed.visits) ? parsed.visits : [],
-      tasks: Array.isArray(parsed.tasks) ? parsed.tasks : []
-    };
-    save();
-    activePoolId = null;
-    renderAll();
-    alert("Import complete.");
-  }catch(err){
-    alert("Import failed. Make sure you selected a valid backup JSON file.");
-  }finally{
-    fileImport.value = "";
-  }
-});
-
-btnReset.addEventListener("click", () => {
-  if(!confirm("This will erase all local data on this device/browser. Continue?")) return;
-  localStorage.removeItem(KEY);
-  db = defaultData();
-  activePoolId = null;
-  save();
-  renderAll();
-});
-
-/* Dropdowns + render */
-function renderDropdowns(){
-  const options = db.pools.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
-  taskPool.innerHTML = `<option value="">(Link to a property)</option>` + options;
-  historyPool.innerHTML = `<option value="">(Select property)</option>` + options;
-
-  if(activePoolId && db.pools.some(p => p.id === activePoolId)){
-    taskPool.value = activePoolId;
-  }
-  if(historyPool.value && !db.pools.some(p => p.id === historyPool.value)){
-    historyPool.value = "";
-  }
-}
-
-function renderAll(){
-  renderPools();
-  renderChecklistManager();
-  renderDropdowns();
-  renderVisitCard();
-  renderTasks();
-
-  if(!historyPool.value && activePoolId) historyPool.value = activePoolId;
-  renderHistory();
-}
-
-/* boot */
-renderAll();
+render();
 </script>
 </body>
 </html>
